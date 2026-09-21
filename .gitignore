@@ -1,0 +1,21 @@
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+chatbot-env/
+.venv/
+venv/
+
+# Local app state
+.gradio/
+chroma_db/
+
+# Windows download metadata
+*:Zone.Identifier
+
+# Generated / scratch output
+internal_policy.txt
+test*.txt
+tes3t.txt

@@ -1,0 +1,13 @@
+# What the automated tests need. The heavy packages (torch, chromadb, sentence-transformers,
+# langchain-chroma/-huggingface/-groq) are NOT needed: the tests use fakes for the index and the LLM,
+# so CI stays fast. Everything else matches requirements.txt.
+langchain-core>=1.0,<2
+langchain-text-splitters>=1.0,<2
+pymupdf>=1.24
+rank-bm25>=0.2.2
+fastapi>=0.110
+uvicorn>=0.30
+pydantic>=2.7,<3
+pydantic-settings>=2.4,<3
+httpx
+pytest

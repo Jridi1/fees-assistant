@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fees assistant</title>
+<meta name="description" content="Ask about N26 and Revolut fees. Answers come only from the banks' own documents, with the page each answer came from.">
+<meta name="theme-color" content="#07080a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2307080a'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-size='40' font-weight='600' text-anchor='middle' fill='%237ec8f5'%3EA%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div>
+      <h1>Fees assistant</h1>
+      <p class="sub">Answers only from the N26 and Revolut documents it has read, with the page each answer came from.</p>
+    </div>
+    <div class="top__actions">
+      <button type="button" class="link" id="newChat">New chat</button>
+    </div>
+  </header>
+
+  <main class="log" id="log" role="log" aria-live="polite" aria-label="Conversation">
+    <div class="empty" id="empty">
+      <p class="empty__title">Try a question</p>
+      <div class="examples">
+        <button type="button" class="example" data-question="How much does N26 charge for a replacement card?">How much does N26 charge for a replacement card?</button>
+        <button type="button" class="example" data-question="What is the ATM withdrawal fee on the Revolut Standard plan after the free limit?">What is the ATM withdrawal fee on the Revolut Standard plan after the free limit?</button>
+        <button type="button" class="example" data-question="What is the monthly currency exchange limit on the Revolut Standard plan?">What is the monthly currency exchange limit on the Revolut Standard plan?</button>
+      </div>
+    </div>
+  </main>
+
+  <div class="status" id="status" role="status" aria-live="polite" hidden>
+    <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span id="statusText"></span>
+  </div>
+
+  <form class="composer" id="form" autocomplete="off">
+    <label class="sr-only" for="question">Your question</label>
+    <textarea id="question" rows="1" maxlength="500" placeholder="Ask about fees, limits or terms..."></textarea>
+    <button type="submit" class="send" id="send">Send</button>
+    <p class="hint"><span id="count">0/500</span> &middot; Enter to send, Shift+Enter for a new line</p>
+  </form>
+
+  <footer class="foot">Answers are generated from the indexed documents and can be wrong. Check important details with the bank.</footer>
+</div>
+
+<script src="/static/sse.js"></script>
+<script src="/static/markdown.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

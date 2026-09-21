@@ -1,0 +1,28 @@
+# Secrets and local state: never part of an image
+.env
+.env.*
+!.env.example
+.git
+.gitignore
+.gitattributes
+.venv
+chatbot-env
+chroma_db
+__pycache__
+*.pyc
+.pytest_cache
+.gradio
+
+# Not needed at run time
+tests
+eval
+docs
+*.md
+requirements-dev.txt
+
+# Legacy prototypes and scratch output
+legacy
+LICENSE
+internal_policy.txt
+test*.txt
+tes3t.txt

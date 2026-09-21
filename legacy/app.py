@@ -44,6 +44,8 @@ def document_loader(filename):
         f.write(contents)
     return TextLoader("internal_policy.txt").load()
 
+
+
 def text_splitter(documents):
     splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=150, separator="\n")
     return splitter.split_documents(documents)
