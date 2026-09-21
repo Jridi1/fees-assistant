@@ -1,21 +1,27 @@
-spaces
-langchain
-langchain-core
-langchain-community
-langchain-text-splitters
-langchain-huggingface
-langchain-chroma
-langchain-classic
+# Runtime dependencies of the fees assistant (what the Docker image installs).
+# Bounded to the major versions the tests ran against. For a long-lived deployment, freeze the
+# exact versions from a working image:  docker run --rm <image> pip freeze > requirements.lock
+# Development tools (pytest, httpx) are in requirements-dev.txt.
+
+# PyTorch is installed separately in the Dockerfile (CPU build); pip needs it only if you run locally:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+
+# LangChain
+langchain-core>=1.0,<2
+langchain-text-splitters>=1.0,<2
+langchain-chroma>=1.0,<2
+langchain-huggingface>=1.0,<2
 langchain-groq
-chromadb
-sentence-transformers
-transformers
-huggingface-hub
-wget
-pypdf
-gradio
-jinja2
-pydantic
-fastapi
-starlette
-uvicorn
+langchain-classic>=1.0,<2  # only for the optional multi-query retriever (USE_MULTI_QUERY=true)
+
+# Retrieval
+chromadb>=1.0,<2
+sentence-transformers>=3,<7
+pymupdf>=1.24
+rank-bm25>=0.2.2
+
+# API and configuration
+fastapi>=0.110
+uvicorn>=0.30
+pydantic>=2.7,<3
+pydantic-settings>=2.4,<3

@@ -1,0 +1,82 @@
+{
+  "_comment": "Every expectation below was read from the source PDFs. pages are 1-indexed. 'evidence' is used by the offline chunking test; the rest by 'python -m feesbot eval'.",
+  "cases": [
+    {
+      "id": "n26_standard_replacement",
+      "question": "How much does N26 charge for a replacement card?",
+      "paraphrases": [
+        "What do I pay to replace my lost N26 card?",
+        "N26 new card fee after losing the old one"
+      ],
+      "expect_amounts": [10],
+      "forbid_text": ["on top of", "extra charge", "additional charge"],
+      "expect_source": {"bank": "N26", "pages": [5]},
+      "evidence": {"bank": "N26", "contains": ["Ordering a replacement card", "10.00"]}
+    },
+    {
+      "id": "n26_metal_replacement",
+      "question": "How much does replacing an N26 Metal card cost?",
+      "paraphrases": ["What is the fee for a new N26 Metal card if I lose mine?"],
+      "expect_amounts": [45],
+      "expect_source": {"bank": "N26", "pages": [6]},
+      "evidence": {"bank": "N26", "contains": ["Ordering a replacement N26 Metal card", "45.00"]}
+    },
+    {
+      "id": "n26_express_replacement",
+      "question": "How much is express delivery of a replacement N26 card?",
+      "paraphrases": ["What does N26 charge to rush a replacement card in 1-3 days?"],
+      "expect_amounts": [30],
+      "forbid_text": ["on top of", "extra charge", "additional charge"],
+      "expect_source": {"bank": "N26", "pages": [6]},
+      "evidence": {"bank": "N26", "contains": ["Express delivery of a replacement card", "30.00"]}
+    },
+    {
+      "id": "n26_emergency_cash_advance",
+      "question": "What is the fee for the N26 Emergency Cash Advance?",
+      "paraphrases": ["How much does N26 charge for emergency cash after losing my card abroad?"],
+      "expect_amounts": [130],
+      "expect_source": {"bank": "N26", "pages": [6]},
+      "evidence": {"bank": "N26", "contains": ["Emergency Cash Advance", "130.00"]}
+    },
+    {
+      "id": "revolut_replacement",
+      "question": "How much does Revolut charge for a replacement card?",
+      "paraphrases": ["What does it cost to get a new Revolut card if I lose mine?"],
+      "expect_amounts": [6],
+      "forbid_amounts": [45],
+      "expect_source": {"bank": "Revolut", "pages": [2, 12]},
+      "evidence": {"bank": "Revolut", "contains": ["Replacement Revolut Cards", "per replacement"]}
+    },
+    {
+      "id": "revolut_atm_fee",
+      "question": "What is the ATM withdrawal fee on the Revolut Standard plan after the free limit?",
+      "paraphrases": ["How much does Revolut Standard charge for ATM withdrawals once I pass the free allowance?"],
+      "expect_amounts": [2],
+      "expect_source": {"bank": "Revolut", "pages": [3, 12]},
+      "evidence": {"bank": "Revolut", "contains": ["ATM Withdrawals", "2% of the withdrawal"]}
+    },
+    {
+      "id": "revolut_exchange_limit_standard",
+      "question": "What is the monthly currency exchange limit on the Revolut Standard plan?",
+      "paraphrases": ["How much can I exchange per month on Revolut Standard before a fee applies?"],
+      "expect_amounts": [1000],
+      "expect_source": {"bank": "Revolut", "pages": [5]},
+      "evidence": {"bank": "Revolut", "contains": ["Standard: Exchange limit", "1,000"]}
+    },
+    {
+      "id": "refuse_usd_conversion",
+      "question": "How much is a Revolut replacement card in US dollars?",
+      "expect_grounded": false
+    },
+    {
+      "id": "refuse_unknown_bank",
+      "question": "What does Monzo charge for a replacement card?",
+      "expect_grounded": false
+    },
+    {
+      "id": "refuse_off_topic",
+      "question": "What is the weather in Paris today?",
+      "expect_grounded": false
+    }
+  ]
+}
