@@ -40,7 +40,7 @@ async def _run_eval(golden: Path, only: list[str] | None, delay: float) -> int:
             return 2
     results = await run_eval(create_chat_service(), cases, delay_s=delay)
     print(format_report(results))
-    return 0 if all(r.passed for r in results) else 1
+    return 0 if all(r.ok for r in results) else 1
 
 
 async def _chat_loop() -> None:
@@ -92,7 +92,7 @@ def main() -> None:
 
         results = evaluate_retrieval(create_retriever(), load_golden(args.golden))
         print(format_retrieval_report(results))
-        raise SystemExit(0 if all(r.passed for r in results) else 1)
+        raise SystemExit(0 if all(r.ok for r in results) else 1)
     elif args.command == "eval":
         raise SystemExit(asyncio.run(_run_eval(args.golden, args.case, args.delay)))
     else:

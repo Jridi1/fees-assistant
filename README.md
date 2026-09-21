@@ -12,6 +12,8 @@ short_description: Bank fee answers from the banks' own PDFs, with citations
 
 # Multi-bank fees assistant
 
+[![CI](https://github.com/Jridi1/fees-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/Jridi1/fees-assistant/actions/workflows/ci.yml)
+
 A chatbot that answers questions about **N26 and Revolut fees only from the banks' own PDFs**, shows the page each answer came from, and says so when the documents do not cover the question.
 
 **Live demo:** _(link added after the first deployment)_
@@ -24,7 +26,7 @@ Retrieval-augmented chatbots usually fail quietly: they answer confidently from 
 
 - **Grounded, cited, honest.** Every answer carries the bank, file and page it came from. If the documents don't contain the answer, the assistant refuses and cites nothing (enforced by the response model, not just the prompt).
 - **Measured, not assumed.** A golden question set (facts read from the PDFs, with paraphrases and refusals) is run against both retrieval alone and the full pipeline. An early version paired a price with the wrong item; the evaluation is what exposed it and what proved the fix.
-- **Hybrid retrieval.** Embedding search alone never surfaced the right price-list row. Keyword search plus embeddings, over small chunks widened with their neighbours, retrieves all 15 golden questions. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the diagrams and the decisions.
+- **Hybrid retrieval.** Embedding search alone never surfaced the right price-list row. Keyword search plus embeddings, over small chunks widened with their neighbours, took recall on the first 15 golden questions from 10 to 15. On the wider set (below) it retrieves 20 of 23, and the 3 misses are documented, not hidden. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the diagrams and the decisions.
 - **Built to be exposed.** Validated input (Pydantic), per-visitor conversation memory, streamed progress events, rate limits and a daily budget, safe rendering of model output, and a content-security policy.
 
 ## Run it locally
@@ -47,9 +49,11 @@ Other commands: `python -m feesbot chat` (terminal chat), `python -m feesbot rec
 
 ```bash
 python -m pytest tests        # unit, API and front-end tests (needs Node for the JavaScript ones)
-python -m feesbot recall      # does retrieval surface every verified fact?
+python -m feesbot recall      # does retrieval surface every verified fact? (no API key needed)
 python -m feesbot eval        # does the assistant answer correctly, cite the right page, refuse when it should?
 ```
+
+`eval` reports each case as `PASS`, `FAIL`, `ERROR` (the provider failed, so nothing was judged) or `KNOWN` (a documented limitation; it does not fail the run and turns into `FIXED` once it passes). The tests run in CI on every push (`.github/workflows/ci.yml`).
 
 ## Configuration
 
@@ -94,7 +98,8 @@ legacy/             earlier prototypes (not maintained)
 ## Limitations
 
 - Knows only the documents in the index (N26's document set and one Revolut policy). Answers can be wrong; the assistant says to check with the bank.
-- The evaluation set is small (10 cases, 18 questions) and retrieval settings were tuned on the same facts, so the headline numbers are optimistic. Growing the set is the next quality step.
+- The evaluation set is still small (21 cases, 35 questions: fees, contract terms, follow-ups, a cross-bank comparison, refusals and prompt-injection attempts). The retrieval settings were tuned on the first 7 facts, so the headline numbers are optimistic; the newer cases are the fairer test.
+- **Known retrieval misses, kept in the evaluation on purpose** (`known_issue` in `eval/golden.json`): a question about N26's notice period for terminating an account does not retrieve the paragraph that answers it (it sits in boilerplate about "the payment service provider"), and asking to "cancel" instead of "withdraw" retrieves the under-18 product's terms. A larger `k` does not help. Candidate fixes: LLM query expansion, or tagging chunks with the product and section heading.
 - Conversation memory and rate limits live in one process; running several workers would need a shared store such as Redis.
 - `legacy/` holds the earlier prototypes (Gradio and Discord). They are kept as history and are not maintained.
 - The bank PDFs in `N26/` and `internal_policy.pdf` belong to their publishers and are included only so the demo can answer from them.

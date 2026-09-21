@@ -66,7 +66,7 @@ Joining the pages before splitting keeps a price row whole: N26 puts a fee's hea
 |---|---|---|---|
 | Input is bounded and safe | Pydantic request model: 1 to 500 characters, session id limited to letters, digits, `_` and `-` | `schemas.py` | unit and API tests (HTTP 422) |
 | Visitors never see each other's history | Per-session memory, one lock per session, oldest sessions evicted first | `sessions.py` | session and chat tests |
-| The answer comes from the right passage | Hybrid search over small chunks, each widened with its neighbours | `hybrid.py` | `python -m feesbot recall` |
+| The answer comes from the right passage | Hybrid search over small chunks, each widened with its neighbours | `hybrid.py` | `python -m feesbot recall`: 20 of 23, 3 documented known issues |
 | A refusal never cites sources | The model declares whether it found the answer; the response model rejects a refusal that carries sources | `schemas.py`, `chat.py` | schema tests, refusal cases in the live eval |
 | The model does not invent rules | Prompt forbids inferring how fees combine; the eval rejects known invented phrasing | `prompts.py`, `evaluation.py` | `python -m feesbot eval` |
 | Model output cannot attack the page | Escape everything first, no links, strict content-security policy, framing limited to the portfolio | `markdown.js`, `api.py` | JavaScript tests, injection attempt in a real browser |
@@ -76,7 +76,7 @@ Joining the pages before splitting keeps a price row whole: N26 puts a fee's hea
 
 ## Decisions worth defending
 
-- **Hybrid search, chosen by measurement.** Embedding search alone never returned the row holding the N26 replacement fee, and a larger `k` did not help. Recall on 15 golden questions went 10, then 12 with keyword search added, then 15 with small chunks and neighbour windows. A reranker and a different embedding model added nothing, so neither is in the system. The settings were tuned on the same facts they are scored on, so the number is optimistic and the evaluation set needs to keep growing.
+- **Hybrid search, chosen by measurement.** Embedding search alone never returned the row holding the N26 replacement fee, and a larger `k` did not help. Recall on 15 golden questions went 10, then 12 with keyword search added, then 15 with small chunks and neighbour windows. A reranker and a different embedding model added nothing, so neither is in the system. The settings were tuned on the same facts they are scored on, so that number is optimistic. On the wider evaluation set (23 retrievable questions, including contract terms and a cross-bank comparison) recall is 20 of 23; the three misses are documented in `eval/golden.json` as known issues, and a larger `k` does not fix them.
 - **Stream progress, not raw tokens.** The model answers in structured JSON that can only be validated once complete; streaming its tokens would show unvalidated text.
 - **The chat is a page, and the portfolio frames it.** One copy of the chat code, usable as a plain link. The cost is that a sleeping free host cannot serve the page, so the "waking up" message has to live in the modal.
 - **Memory lives in the process.** Simple and fast, bounded by a session cap. With several workers it would move to Redis.

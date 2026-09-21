@@ -5,7 +5,7 @@ import pymupdf
 import pytest
 
 from feesbot.chunking import chunk_pdf, extract_pdf, pdf_files
-from feesbot.evaluation import load_golden
+from feesbot.evaluation import load_golden, normalize_ws
 from feesbot.hybrid import build_windows, index_corpus
 from feesbot.schemas import Bank, ChunkMetadata
 from feesbot.settings import Settings
@@ -92,7 +92,7 @@ def test_chunk_index_counts_from_zero_in_reading_order(tmp_path):
 # A retrieved passage is a chunk plus its neighbours (see feesbot.hybrid), so that is what must hold the fact.
 
 SETTINGS = Settings(_env_file=None, groq_api_key="x")
-GOLDEN = [c for c in load_golden(ROOT / "eval" / "golden.json") if c.evidence]
+GOLDEN = [(c, e) for c in load_golden(ROOT / "eval" / "golden.json") for e in c.evidence]
 _corpus_cache: dict[Bank, dict] = {}
 
 
@@ -109,19 +109,21 @@ def bank_corpus(bank: Bank):
     return _corpus_cache[bank]
 
 
-@pytest.mark.parametrize("case", GOLDEN, ids=lambda c: c.id)
-def test_verified_fact_sits_in_one_passage_on_the_right_page(case):
-    source = ROOT / SETTINGS.bank_sources[case.evidence.bank]
+@pytest.mark.parametrize("case, evidence", GOLDEN, ids=lambda v: v.id if hasattr(v, "id") else "-".join(v.contains)[:40])
+def test_verified_fact_sits_in_one_passage_on_the_right_page(case, evidence):
+    source = ROOT / SETTINGS.bank_sources[evidence.bank]
     if not source.exists():
         pytest.skip(f"source documents not present: {source}")
 
-    corpus = bank_corpus(case.evidence.bank)
+    corpus = bank_corpus(evidence.bank)
     windows = [build_windows([key], corpus, SETTINGS.neighbor_window)[0] for key in corpus]
-    matches = [w for w in windows if all(t in w.page_content for t in case.evidence.contains)]
-    assert matches, f"no passage holds {case.evidence.contains} together: the fact was split apart"
+    matches = [w for w in windows if all(normalize_ws(t) in normalize_ws(w.page_content) for t in evidence.contains)]
+    assert matches, f"no passage holds {evidence.contains} together: the fact was split apart"
 
-    if case.expect_source:
+    wanted = [s for s in case.expect_sources if s.bank == evidence.bank]
+    if wanted:
         citations = [ChunkMetadata.model_validate(w.metadata).to_citation() for w in matches]
+        pages = [p for s in wanted for p in s.pages]
         assert any(
-            cit.covers(p) for cit in citations for p in case.expect_source.pages
-        ), f"passage pages {[c.label for c in citations]} do not cover {case.expect_source.pages}"
+            cit.covers(p) for cit in citations for p in pages
+        ), f"passage pages {[c.label for c in citations]} do not cover {pages}"
